@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <link rel="stylesheet" href="styles.css">
+        <meta charset="UTF-8">
+        <title>Question Answering</title>
+        <style>
+            h1 {
+
+              margin-top: 20px;
+              margin-bottom: 30px;
+              margin-right: 150px;
+              margin-left: 80px;
+
+            }
+            form {
+
+              margin-top: 0px;
+              margin-bottom: 30px;
+              margin-right: 150px;
+              margin-left: 40px;
+
+            }
+            input {
+
+              margin-top: 10px;
+              margin-bottom: 10px;
+              margin-right: 0px;
+              margin-left: 443px;
+              border:3px solid grey;
+            }
+            h3 {
+
+              margin-top: 0px;
+              margin-bottom: 40px;
+              margin-right: px;
+              margin-left: 40px;
+
+            }
+
+         </style>
+    </head>
+<body>
+
+    <h1 >Question and Answering</h1>
+
+
+
+    <div> <br></div>
+
+    <form action="/" method="get">
+      <textarea rows="5" cols="60" name="question" placeholder="Ask a question..." ></textarea>
+      <br/>
+      <input type="Submit" value="Submit"/>
+    </form>
+
+
+    {% if result %}
+
+        <h3> Answer: {{result}}</h3>
+
+    {% else %}
+        <h3> Answer: </h3>
+    {% endif %}
+
+</body>
+</html>

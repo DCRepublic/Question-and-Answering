@@ -1,0 +1,13 @@
+#!/usr/bin/env bash
+
+if $(conda env list | grep -q "/opt/conda/envs/codalab"); then
+  echo "INFO: Using codalab environment"
+  source /opt/conda/etc/profile.d/conda.sh > /dev/null 2> /dev/null
+  conda activate codalab
+else
+  echo "INFO: Using base environemnt"
+fi
+
+python -m qanta.tfidf $@
+
+
