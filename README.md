@@ -1,4 +1,4 @@
-This is a simple, baseline system that does well on the question answering task "quiz bowl".  This system generates the baseline score on our leaderboard and demonstrates the IO profile we expect of Docker container submission.
+This is a simple, baseline system, that does well on the question answering task "quiz bowl".  This system generates the baseline score on the QANTA leaderboard and demonstrates the IO profile  expected of a Docker container submission. The only thing changed from the original code (found here https://github.com/Pinafore/qanta-codalab is a simple interface to ask questions from)
 
 
 # Reference System
@@ -9,28 +9,7 @@ codalab server interacts with the container as well as a simple yet
 surprisingly effective baseline. The simple system consists of a TF-IDF guesser
 and a threshold-based buzzer.
 
-# System Requirements
 
-All systems will take as input a question (sequence of words), and output an
-answer guess (a Wikipedia entity) and a binary decision whether to buzz or not.
-
-For example, this command queries a system running locally for what it thinks
-the best current answer is as well as whether it is deciding to buzz on the
-answer.
-
-```bash
-$ http POST http://0.0.0.0:4861/api/1.0/quizbowl/act text='Name the the inventor of general relativity and the photoelectric effect'
-HTTP/1.0 200 OK
-Content-Length: 41
-Content-Type: application/json
-Date: Wed, 10 Oct 2018 01:12:27 GMT
-Server: Werkzeug/0.14.1 Python/3.7.0
-
-{
-    "buzz": false,
-    "guess": "Albert_Einstein"
-}
-```
 
 ## Input Format
 In addition to the `question_text` field shown in the `httpie` sample request we provide a few additional fields.
@@ -51,11 +30,6 @@ In addition to the `question_text` field shown in the `httpie` sample request we
 }
 ```
 
-### Optional Wikipedia paragraphs
- Models can optionally (see the status API below) request providing retrieved Wikipedia paragraphs for each sentence of the questions. In that case,
-one more field, `wiki_paragraphs`, is added to the input. `wiki_paragraphs`
-is a list of the top-5 retrieved sentences for each completed
-question sentence. Each sentence contains the page from which the sentence comes from, the paragraph and sentence index in that page, the sentence text, and correct answer spans (to help build RC systems). **An IR system example actually using these 'evidence' files can be found [here](https://github.com/Pranav-Goel/Naive_IR_Baseline_qanta).**
 
 ## Output Format
 The output answer to each question is also a json object of two fields
@@ -68,7 +42,9 @@ The output answer to each question is also a json object of two fields
 {"guess": "The_Marriage_of_Figaro", "buzz": true}
 ```
 
-## Code Requirements
+
+
+# Code Requirements
 
 The first requirement we enforce on all systems is that if the current working
 directory is the contents of `src/`, and if we run `bash run.sh` that it will
@@ -87,8 +63,8 @@ script will return an error.
 
 ## Installation
 
-You will only need to have [docker](https://docs.docker.com/install/) and [docker-compose](https://docs.docker.com/compose/install/)
-installed to run this reference system. You may optionally wish to install [httpie](https://httpie.org) to test the web api.
+You will  need to have [docker](https://docs.docker.com/install/) [elasticsearch](https://www.elastic.co/downloads/elasticsearch)  [docker-compose](https://docs.docker.com/compose/install/)
+and [httpie](https://httpie.org) to test the web api.
 
 ## Running
 
@@ -99,8 +75,10 @@ behind the scenes. Importantly it handles port forwarding and volume mapping so 
 * The directory `src/` is synced to `/src/` in the container
 * The directory `data/` is synced to `/src/data` in the container
 * The web api is accessible at `http://0.0.0.0:4861`
+* The input web api is accessible at `http://localhost:5000`
 
-### Commands
+
+## Commands
 
 These commands are structured via `docker-compose CMD CONTAINER ARGS` where
 `CMD` is a `docker-compose` command, `CONTAINER` is either `qb` or `eval`, and
@@ -109,14 +87,15 @@ These commands are structured via `docker-compose CMD CONTAINER ARGS` where
 1. `docker-compose run qb ./cli download`: This will download the training data to `data/`. Add flag `--retrieve-paragraphs` to download retrieved Wikipedia paragraphs.
 2. `docker-compose run qb ./cli train`: This will train a model and place it in `src/tfidf.pickle`
 3. `docker-compose up`: This will start the web server in the foreground, `-d` for background, `ctrl-c` to stop
-4. `docker-compose run eval`: This will run the evaluation script
+4. `python user_interface.py` This starts the website and is accessible at `http://localhost:5000`
+5. `docker-compose run eval`: This will run the evaluation script
 
 Another useful command is `docker-compose down` to shutdown zombied web servers
 and scripts. `docker ps -a` will also display all running and stopped
 containers. `docker-compose logs` will show all the container logs together.
 
 
-### Test Web API
+### Test Web API (Command Line)
 After you have run (1) and (2), you can test everything works by running
 
 ```bash
@@ -154,11 +133,6 @@ Output:
 }
 ```
 
-# Managing your own special dependencies
-
-If you have no special dependencies, you should not have to create your own docker container, the image we provide and the instructions above should suffice in most cases. In case you have an environment with some non-standard dependencies, you may want to create a docker container for the environment for replicability purposes. You will create your docker container the standard way; some resources that may help: https://docker-curriculum.com/, https://testcollab.com/blog/using-docker-to-manage-and-replicate-test-environments/, https://sweetcode.io/using-docker-reproducible-build-environments/.
-
-Another option that works particularly well if the dependency is light, is to insert "pip install gensim" to the top of the cli/run.sh file.
 
 # Codalab
 
