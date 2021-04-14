@@ -17,12 +17,15 @@ def home(result=None):
             question = request.args['question']
 
 
-            url = 'http://0.0.0.0:4861/api/1.0/quizbowl/act'
 
+
+            #Use Http to request answer
             result = subprocess.check_output(['http', 'POST', 'http://0.0.0.0:4861/api/1.0/quizbowl/act', 'text='+question,'--ignore-stdin'])
 
             ## Only for debugging
             ## print(result)
+
+            # Update webpage with new data
             return render_template("index.html", result=result)
 
         return render_template("index.html", result=result)
