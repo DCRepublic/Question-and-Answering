@@ -1,13 +1,4 @@
-This is a simple, baseline system, that does well on the question answering task "quiz bowl".  This system generates the baseline score on the QANTA leaderboard and demonstrates the IO profile  expected of a Docker container submission. The only thing changed from the original code (found here https://github.com/Pinafore/qanta-codalab is a simple interface to ask questions from)
-
-
-# Reference System
-
-We provide sample code which when combined with the provided docker container
-can answer Quiz Bowl questions. This should provide an example of how the
-codalab server interacts with the container as well as a simple yet
-surprisingly effective baseline. The simple system consists of a TF-IDF guesser
-and a threshold-based buzzer.
+This is a simple use of the baseline system to answer questions from a web interface. 
 
 
 
@@ -46,24 +37,9 @@ The output answer to each question is also a json object of two fields
 
 # Code Requirements
 
-The first requirement we enforce on all systems is that if the current working
-directory is the contents of `src/`, and if we run `bash run.sh` that it will
-start a web server satisfying the input/output formats outlined above.
-
-The second requirement we enforce is that all systems should support a status
-API. When we startup your system we will query this API until it is running and
-returning a valid response. If it takes to long to detect then the evaluation
-script will return an error.
-
-* URL: `/api/1.0/quizbowl/status`
-* `ready`: return True if ready to accept requests
-* `batch`: True if model accepts batch API (see farther down), False otherwise
-* `batch_size`: If `batch` is true, an integer indicating max batch size
-* `include_wiki_paragraphs`: True to request providing retrieved Wikipedia paragraphs for each question sentence.
-
 ## Installation
 
-You will  need to have [docker](https://docs.docker.com/install/) [elasticsearch](https://www.elastic.co/downloads/elasticsearch)  [docker-compose](https://docs.docker.com/compose/install/)
+You will  need to have [docker](https://docs.docker.com/install/), [elasticsearch](https://www.elastic.co/downloads/elasticsearch),  [docker-compose](https://docs.docker.com/compose/install/)
 and [httpie](https://httpie.org) to test the web api.
 
 ## Running
@@ -85,9 +61,13 @@ These commands are structured via `docker-compose CMD CONTAINER ARGS` where
 `ARGS` runs inside of the container.
 
 1. `docker-compose run qb ./cli download`: This will download the training data to `data/`. Add flag `--retrieve-paragraphs` to download retrieved Wikipedia paragraphs.
+
 2. `docker-compose run qb ./cli train`: This will train a model and place it in `src/tfidf.pickle`
+
 3. `docker-compose up`: This will start the web server in the foreground, `-d` for background, `ctrl-c` to stop
+
 4. `python user_interface.py` This starts the website and is accessible at `http://localhost:5000`
+
 5. `docker-compose run eval`: This will run the evaluation script
 
 Another useful command is `docker-compose down` to shutdown zombied web servers
@@ -106,6 +86,7 @@ And then the `httpie` command from before:
 
 ```bash
 $ http POST http://0.0.0.0:4861/api/1.0/quizbowl/act text='Name the the inventor of general relativity and the photoelectric effect'
+
 HTTP/1.0 200 OK
 Content-Length: 41
 Content-Type: application/json
@@ -117,6 +98,13 @@ Server: Werkzeug/0.14.1 Python/3.7.0
     "guess": "Albert_Einstein"
 }
 ```
+
+### Test Web API (Visual)
+After you have run (1) and (2), you can test everything works by navigating to
+
+`http://localhost:5000`
+
+There should be a simple Question and Answer box that returns an answer, or the closest answer to the question when prompted. If an error is returned you may need to wait a little longer for elasticsearch to start up. 
 
 ### Batch Web API
 
@@ -157,53 +145,3 @@ You may be interested in using a GPU in which case these instructions should hel
 4. To run you can use `nvidia-docker`, but this won't use the compose file we have provided. (Instructions untested here) you can use `nvidia-docker-compose` https://github.com/eywalker/nvidia-docker-compose as a workaround instead as described here https://hackernoon.com/docker-compose-gpu-tensorflow-%EF%B8%8F-a0e2011d36
 5. When submitting to codalab we recommend you use start with the following parameters after the `cl macro` command `--request-gpus 1 --request-cpus 2 --request-memory 12g --request-docker-image entilzha/quizbowl-gpu`
 6. Lastly, the image does not modify the base anaconda environment, but instead creates a new one named `qb`. For things to work you will need to run `source activate qb` at the top of `run.sh` and `cli` to switch to the new environment.
-
-# Maintainer Notes
-
-## Dockerhub
-
-The default docker-compose file references the published image for quizbowl at
-https://hub.docker.com/r/entilzha/quizbowl/
-
-To push new images requires the correct permissions and running the following
-commands in sequence:
-
-```bash
-docker-compose -f docker-compose.dev.yml build
-docker tag qanta-codalab_qb:latest entilzha/quizbowl
-docker push entilzha/quizbowl
-```
-
-## Codalab CLI
-
-Install with anaconda python using
-
-```bash
-$ conda env create -f codalab_cl_env.yml
-$ source activate codalab
-$ #config.fish: source ~/anaconda3/etc/fish/conf.d/conda.fish
-```
-## FAQ
-1. When training locally in docker, i got the training process killed.
-A: This happened in Mac users. You need to increase the memory in docker configuration. See the instructions from this website. https://lucianomolinari.com/2017/06/11/containers-being-killed-on-docker-for-mac/ 
-
-2. When I tried to install Codalab on Mac OS, I got the following error:
-```
-codalabworker 0.2.41 has requirement six==1.11.0, but you'll have six 1.12.0 which is incompatible.
-codalab 0.2.41 has requirement six==1.11.0, but you'll have six 1.12.0 which is incompatible.
-```
-A: This is because codalab is using a couple of out of date components, and Mac OS has a more recent version installed that you can't overwrite.  To fix this, you can install the specific version that codalab needs:
-```
-sudo pip2 install six==1.11.0
-```
-
-3. My pip is connected to Python3 and isn't letting me install packages for Codalab, which needs Python2.
-A: Install pip2:
-```
-wget https://bootstrap.pypa.io/get-pip.py
-sudo python2.7 get-pip.py
-```
-
-4.  FOR MAC USERS: I keep getting messages indicating a container was "Killed".  A: [Follow these instructions](https://lucianomolinari.com/2017/06/11/containers-being-killed-on-docker-for-mac/) to allow Docker to use more CPU/RAM.
-
-5. TIP: You might want to use Python 3.6 and above for your code.
