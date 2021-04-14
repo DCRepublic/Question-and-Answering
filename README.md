@@ -1,4 +1,4 @@
-This is a simple use of the baseline system to answer questions from a web interface. 
+This is a simple use of the baseline [system](https://github.com/Pinafore/qanta-codalab) to answer questions from a web interface. 
 
 
 
