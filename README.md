@@ -106,6 +106,11 @@ After you have run (1) and (2), you can test everything works by navigating to
 
 There should be a simple Question and Answer box that returns an answer, or the closest answer to the question when prompted. If an error is returned you may need to wait a little longer for elasticsearch to start up. 
 
+### Example
+![User_Interface](https://user-images.githubusercontent.com/37555910/114807250-1809e180-9d74-11eb-829e-dce7ad79fb04.gif)
+
+
+
 ### Batch Web API
 
 WIP: More updates coming soon
