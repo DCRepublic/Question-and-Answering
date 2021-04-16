@@ -131,9 +131,6 @@ Output:
 
 These instructions show you how to setup and run a codalab compatible model locally, but to submit to codalab you should follow the instructions at [codalab.qanta.org](http://codalab.qanta.org/).
 
-The diagram below shows how Docker, codalab, and the evaluation scripts are related.
-
-![codalab and docker evaluation](diagram.png)
 
 At a high level:
 1. You submit your code/model for evaluation by running either the `docker-compose` command or the codalab macro.
