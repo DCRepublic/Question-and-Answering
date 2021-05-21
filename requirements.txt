@@ -9,7 +9,7 @@ docker-pycreds==0.4.0
 fusepy==2.0.4
 idna==2.10
 ipaddress==1.0.23
-marshmallow==2.6.1
+marshmallow==2.15.1
 marshmallow-jsonapi==0.15.1
 pathtools==0.1.2
 psutil==5.4.6
